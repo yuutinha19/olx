@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "\"# taxa\"  git init git add README.md git commit -m \"first commit\" git branch -M main git remote add origin https://github.com/yuutinha19/taxa.git git push -u origin main",
+  "main": "storage.js",
+  "scripts": {
+    "start": "node storage.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuutinha19/taxa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yuutinha19/taxa/issues"
+  },
+  "homepage": "https://github.com/yuutinha19/taxa#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "multer": "^1.4.5-lts.1",
+    "telegraf": "^4.16.3"
+  }
+}

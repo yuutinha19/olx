@@ -1,0 +1,12 @@
+services:
+  - name: meu-bot
+    type: web
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node storage.js"
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: GROUP_CHAT_ID
+        sync: false
