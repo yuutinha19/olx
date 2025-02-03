@@ -404,7 +404,7 @@ if (process.env.NODE_ENV === 'production') {
             }
 
             .modal-content button {
-                background-color: #FF9800;
+                background-color:rgb(120, 0, 122);
                 color: white;
                 border: none;
                 padding: 0.5rem 1rem;
@@ -414,7 +414,7 @@ if (process.env.NODE_ENV === 'production') {
             }
 
             .modal-content button:hover {
-                background-color: #f57c00;
+                background-color: rgb(17, 255, 0);
             }
         </style>
     </head>
