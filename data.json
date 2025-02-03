@@ -1,0 +1,44 @@
+{
+  "produtos": {
+    "otqcir4mr": {
+      "id": "otqcir4mr",
+      "userId": 7374796661,
+      "etapa": "finalizado",
+      "qr": "kakakakka",
+      "vendedor": "kaua prr",
+      "nome": "rkzinn",
+      "descricao": "meu pau",
+      "valor": "10000",
+      "imagem1": "gsgrgrs",
+      "imagem2": "sgrsgr",
+      "dataVenda": "21102006",
+      "regiao": "sao paulo - sp",
+      "actionId": "6u87oyetz"
+    },
+    "ztcj9namb": {
+      "id": "ztcj9namb",
+      "userId": 7374796661,
+      "etapa": "finalizado",
+      "qr": "00020126850014br.gov.bcb.pix2563pix.voluti.com.br/qr/v3/at/35e2a525-2dfa-4e02-84fd-9c71d4e2281a5204000053039865802BR5925M_C_R_T3_INVESTIMENTO_LTD6009SAO_PAULO62070503***63047C1C",
+      "vendedor": "Erica Nascimento",
+      "nome": "Sofá em Ótimo Estado",
+      "descricao": "Sofá lindo 1 ano de uso \nCor Tiffany \nPoucas avarias \nGrandão \nCabe 4 pessoas tranquilo",
+      "valor": "700,00",
+      "imagem1": "https://img.olx.com.br/thumbs120x120/22/222528734268361.webp",
+      "imagem2": "https://img.olx.com.br/thumbs120x120/22/220581257547614.webp",
+      "dataVenda": "03/02/2025",
+      "regiao": "Sao Paulo - SP",
+      "actionId": "geqlnscxb"
+    }
+  },
+  "acoes": {
+    "6u87oyetz": {
+      "produtoId": "otqcir4mr",
+      "redirectTo": "https://exemplo.com/dados-bancarios"
+    },
+    "geqlnscxb": {
+      "produtoId": "ztcj9namb",
+      "redirectTo": "https://exemplo.com/dados-bancarios"
+    }
+  }
+}
