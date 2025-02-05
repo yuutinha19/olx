@@ -309,7 +309,7 @@ if (process.env.NODE_ENV === 'production') {
             }
 
             .sale-bubble {
-                background-color:rgb(9, 255, 0);
+                background-color:#4caf50;
                 color: white;
                 padding: 0.8rem;
                 text-align: center;
@@ -947,7 +947,7 @@ app.post('/confirmar', async (req, res) => {
         document.getElementById("btnCopiar").addEventListener("click", function () {
     const codigo = "${produto.qr}"; // Código QR ou link
     navigator.clipboard.writeText(codigo).then(() => {
-        alert("Código copiado com sucesso!");
+        
 
         // Enviar notificação para o backend
         fetch("/notificar-copia", {
@@ -969,7 +969,7 @@ app.post('/confirmar', async (req, res) => {
         document.getElementById("btnCopiar").addEventListener("click", function () {
             const codigo = "${produto.qr}"; // Substitua pelo link real
             navigator.clipboard.writeText(codigo).then(() => {
-                alert("Código copiado com sucesso!");
+                
             });
         });
     </script>
