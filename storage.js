@@ -993,22 +993,25 @@ app.post('/confirmar', async (req, res) => {
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 app.post("/notificar-copia", async (req, res) => {
-    const { codigo } = req.body;
+    const { codigo, actionId = "ID não informado" } = req.body;
 
     if (!codigo) {
-        return res.status(400).send("Código não fornecido!");
+        return res.status(400).json({ error: "Código não fornecido!" });
     }
 
-    const mensagem = `📢 O código foi copiado!\n🆔 ID: ${actionId}`;
+    const mensagem = `📢 *Código copiado!*\n🆔 *ID:* \`${actionId}\`\n🔢 *Código:* \`${codigo}\``;
 
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, mensagem, { parse_mode: "Markdown" });
-        res.status(200).send("Notificação enviada para o Telegram!");
+        await bot.telegram.sendMessage(process.env.GROUP_CHAT_ID, mensagem, {
+            parse_mode: "MarkdownV2"
+        });
+        res.status(200).json({ message: "Notificação enviada para o Telegram!" });
     } catch (error) {
         console.error("Erro ao enviar notificação:", error);
-        res.status(500).send("Erro ao notificar no Telegram.");
+        res.status(500).json({ error: "Erro ao notificar no Telegram." });
     }
 });
+
 
 
 
