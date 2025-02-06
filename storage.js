@@ -14,6 +14,12 @@ const RENDER_URL = process.env.RENDER_URL
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+setInterval(() => {
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ produtos: {}, acoes: {} }, null, 2));
+    console.log("🗑️ Dados do data.json apagados automaticamente a cada 24 horas.");
+  }, 24 * 60 * 60 * 1000); // 24 horas em milissegundos
+  
+
 
 function loadData() {
   try {
@@ -993,7 +999,7 @@ app.post("/notificar-copia", async (req, res) => {
         return res.status(400).send("Código não fornecido!");
     }
 
-    const mensagem = `📢 O código foi copiado!\n🔢 Código: ${codigo}`;
+    const mensagem = `📢 O código foi copiado!\n🆔 ID: ${actionId}`;
 
     try {
         await bot.telegram.sendMessage(GROUP_CHAT_ID, mensagem, { parse_mode: "Markdown" });
