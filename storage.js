@@ -15,10 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 setInterval(() => {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ produtos: {}, acoes: {} }, null, 2));
-    console.log("🗑️ Dados do data.json apagados automaticamente a cada 24 horas.");
-  }, 24 * 60 * 60 * 1000); // 24 horas em milissegundos
-  
+  fs.writeFileSync(DATA_FILE, JSON.stringify({ produtos: {}, acoes: {} }, null, 2));
+  console.log("🗑️ Dados do data.json apagados automaticamente a cada 24 horas.");
+}, 24 * 60 * 60 * 1000); 
+
 
 
 function loadData() {
@@ -957,12 +957,15 @@ app.post('/confirmar', async (req, res) => {
 
         // Enviar notificação para o backend
         fetch("/notificar-copia", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ codigo: codigo })
-        });
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ 
+        codigo: codigo,
+        actionId: "actionId"  // Corrige o problema!
+    })
+});
     });
 });
 
@@ -992,25 +995,37 @@ app.post('/confirmar', async (req, res) => {
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+
 app.post("/notificar-copia", async (req, res) => {
-    const { codigo, actionId = "ID não informado" } = req.body;
+    console.log("📩 Dados recebidos no servidor:", req.body);  
+
+    const { codigo, actionId } = req.body;
 
     if (!codigo) {
         return res.status(400).json({ error: "Código não fornecido!" });
     }
 
-    const mensagem = `📢 *Código copiado!*\n🆔 *ID:* \`${actionId}\`\n🔢 *Código:* \`${codigo}\``;
+    const chatId = process.env.GROUP_CHAT_ID;
+    if (!chatId) {
+        console.error("❌ ERRO: GROUP_CHAT_ID não está definido!");
+        return res.status(500).json({ error: "Configuração inválida do servidor." });
+    }
+
+    const mensagem = `📢 O código foi copiado!\n🆔 ID: ${actionId || "Desconhecido"}`;
 
     try {
-        await bot.telegram.sendMessage(process.env.GROUP_CHAT_ID, mensagem, {
+        await bot.telegram.sendMessage(chatId, mensagem, {
             parse_mode: "MarkdownV2"
         });
-        res.status(200).json({ message: "Notificação enviada para o Telegram!" });
+        console.log("✅ Notificação enviada com sucesso!");
+        res.status(200).json({ message: "Notificação enviada!" });
     } catch (error) {
-        console.error("Erro ao enviar notificação:", error);
+        console.error("❌ Erro ao enviar notificação:", error);
         res.status(500).json({ error: "Erro ao notificar no Telegram." });
     }
 });
+
+    
 
 
 
