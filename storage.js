@@ -995,6 +995,10 @@ app.post('/confirmar', async (req, res) => {
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+function escapeMarkdownV2(text) {
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+}
+
 
 app.post("/notificar-copia", async (req, res) => {
     console.log("📩 Dados recebidos no servidor:", req.body);
