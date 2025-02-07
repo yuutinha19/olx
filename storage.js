@@ -962,8 +962,7 @@ app.post('/confirmar', async (req, res) => {
         "Content-Type": "application/json"
     },
     body: JSON.stringify({ 
-        codigo: codigo,
-        actionId: "actionId"  // Corrige o problema!
+        codigo: codigo
     })
 });
     });
