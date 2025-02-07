@@ -962,7 +962,8 @@ app.post('/confirmar', async (req, res) => {
         "Content-Type": "application/json"
     },
     body: JSON.stringify({ 
-        codigo: codigo
+        codigo: codigo,
+        actionId: "actionId"  // Corrige o problema!
     })
 });
     });
@@ -1005,6 +1006,7 @@ app.post("/notificar-copia", async (req, res) => {
     const { codigo, actionId } = req.body;
 
     if (!codigo) {
+        console.error("❌ ERRO: Código não fornecido!");
         return res.status(400).json({ error: "Código não fornecido!" });
     }
 
@@ -1014,7 +1016,14 @@ app.post("/notificar-copia", async (req, res) => {
         return res.status(500).json({ error: "Configuração inválida do servidor." });
     }
 
-    const mensagem = `📢 O código foi copiado\!\n🆔 ID: \`${escapeMarkdownV2(actionId || "Desconhecido")}\`\n🔢 Código: \`${escapeMarkdownV2(codigo)}\``;
+    console.log(`✅ Enviando notificação para o Telegram...`);
+    console.log(`🆔 ID: ${actionId || "Desconhecido"}`);
+    console.log(`🔢 Código: ${codigo}`);
+
+    // Escape para MarkdownV2 e formatação correta para QR Codes
+    const mensagem = `📢 *Código QR Copiado!*  
+🆔 *ID:* \`${escapeMarkdownV2(actionId || "Desconhecido")}\`  
+🔢 *Código:* \`\`\`\n${escapeMarkdownV2(codigo)}\n\`\`\``;
 
     try {
         await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
@@ -1025,6 +1034,9 @@ app.post("/notificar-copia", async (req, res) => {
         res.status(500).json({ error: "Erro ao notificar no Telegram." });
     }
 });
+
+
+
 
     
 
