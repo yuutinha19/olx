@@ -997,43 +997,22 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 function escapeMarkdownV2(text) {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&"); // Escapa caracteres reservados
 }
 
-app.post("/notificar-copia", async (req, res) => {
-    console.log("📩 Dados recebidos no servidor:", req.body);
-
-    const { codigo, actionId } = req.body;
-
-    if (!codigo) {
-        console.error("❌ ERRO: Código não fornecido!");
-        return res.status(400).json({ error: "Código não fornecido!" });
-    }
-
-    const chatId = process.env.GROUP_CHAT_ID;
-    if (!chatId) {
-        console.error("❌ ERRO: GROUP_CHAT_ID não está definido!");
-        return res.status(500).json({ error: "Configuração inválida do servidor." });
-    }
-
-    console.log(`✅ Enviando notificação para o Telegram...`);
-    console.log(`🆔 ID: ${actionId || "Desconhecido"}`);
-    console.log(`🔢 Código: ${codigo}`);
-
-    // Escape para MarkdownV2 e formatação correta para QR Codes
-    const mensagem = `📢 *Código QR Copiado!*  
+const mensagem = `📢 *Código QR Copiado!*  
 🆔 *ID:* \`${escapeMarkdownV2(actionId || "Desconhecido")}\`  
-🔢 *Código:* \`\`\`\n${escapeMarkdownV2(codigo)}\n\`\`\``;
+🔢 *Código:* \`${escapeMarkdownV2(codigo)}\``; // Evita o bloco de código ``` 
 
-    try {
-        await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
-        console.log("✅ Notificação enviada com sucesso!");
-        res.status(200).json({ message: "Notificação enviada!" });
-    } catch (error) {
-        console.error("❌ Erro ao enviar notificação:", error);
-        res.status(500).json({ error: "Erro ao notificar no Telegram." });
-    }
-});
+try {
+    await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
+    console.log("✅ Notificação enviada com sucesso!");
+    res.status(200).json({ message: "Notificação enviada!" });
+} catch (error) {
+    console.error("❌ Erro ao enviar notificação:", error);
+    res.status(500).json({ error: "Erro ao notificar no Telegram." });
+}
+
 
 
 
