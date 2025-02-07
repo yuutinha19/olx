@@ -1,6 +1,8 @@
-const { Telegraf } = require('telegraf');
-const fs = require('fs');
-const express = require('express');
+import { Telegraf } from 'telegraf';
+import fs from 'fs';
+import express from 'express';
+import puppeteer from 'puppeteer';
+import multer from 'multer';
 
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN)
