@@ -937,6 +937,10 @@ app.post('/confirmar', async (req, res) => {
             <h3 class="text-lg font-bold text-purple-700 mb-2">QR Code para Pagamento</h3>
             <div id="qrcode" class="my-4"></div>
             <button id="btnCopiar" class="bg-purple-700 text-white px-4 py-2 rounded-lg w-full hover:bg-purple-800">Copiar Código</button>
+            <button id="btnRedirecionar" class="hidden bg-blue-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-blue-600">
+    Ir para a próxima página
+</button>
+
             <button id="btnFechar" class="absolute top-2 right-2 text-gray-500">&times;</button>
         </div>
     </div>
@@ -952,7 +956,7 @@ app.post('/confirmar', async (req, res) => {
         });
         document.getElementById("btnCopiar").addEventListener("click", function () {
     const codigo = "${produto.qr}"; 
-    const actionId = "${produto.actionId}"; // Agora pegando o correto!
+    const actionId = "${produto.actionId}"; 
 
     navigator.clipboard.writeText(codigo).then(() => {
         fetch("/notificar-copia", {
@@ -962,11 +966,22 @@ app.post('/confirmar', async (req, res) => {
             },
             body: JSON.stringify({ 
                 codigo: codigo,
-                actionId: actionId  // Agora o ID correto
+                actionId: actionId
             })
         });
+
+        // Aguarda 20 segundos para mostrar o botão
+        setTimeout(() => {
+            document.getElementById("btnRedirecionar").classList.remove("hidden");
+        }, 20000);
     });
 });
+
+// Adiciona o evento de clique no botão que aparecerá depois
+document.getElementById("btnRedirecionar").addEventListener("click", function () {
+    window.location.href = "${RENDER_URL}/pagina-secundaria?id=${produto.actionId}";
+});
+
 
 
 
