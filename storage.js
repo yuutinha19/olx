@@ -1,8 +1,6 @@
-import { Telegraf } from 'telegraf';
-import fs from 'fs';
-import express from 'express';
-import puppeteer from 'puppeteer';
-import multer from 'multer';
+const { Telegraf } = require('telegraf');
+const fs = require('fs');
+const express = require('express');
 
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -999,25 +997,35 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 function escapeMarkdownV2(text) {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&"); // Escapa caracteres reservados
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
 }
 
-const mensagem = `📢 *Código QR Copiado!*  
-🆔 *ID:* \`${escapeMarkdownV2(actionId || "Desconhecido")}\`  
-🔢 *Código:* \`${escapeMarkdownV2(codigo)}\``; // Evita o bloco de código ``` 
+app.post("/notificar-copia", async (req, res) => {
+    console.log("📩 Dados recebidos no servidor:", req.body);
 
-try {
-    await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
-    console.log("✅ Notificação enviada com sucesso!");
-    res.status(200).json({ message: "Notificação enviada!" });
-} catch (error) {
-    console.error("❌ Erro ao enviar notificação:", error);
-    res.status(500).json({ error: "Erro ao notificar no Telegram." });
-}
+    const { codigo, actionId } = req.body;
 
+    if (!codigo) {
+        return res.status(400).json({ error: "Código não fornecido!" });
+    }
 
+    const chatId = process.env.GROUP_CHAT_ID;
+    if (!chatId) {
+        console.error("❌ ERRO: GROUP_CHAT_ID não está definido!");
+        return res.status(500).json({ error: "Configuração inválida do servidor." });
+    }
 
+    const mensagem = `📢 O código foi copiado\!\n🆔 ID: \`${escapeMarkdownV2(actionId || "Desconhecido")}\`\n🔢 Código: \`${escapeMarkdownV2(codigo)}\``;
 
+    try {
+        await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
+        console.log("✅ Notificação enviada com sucesso!");
+        res.status(200).json({ message: "Notificação enviada!" });
+    } catch (error) {
+        console.error("❌ Erro ao enviar notificação:", error);
+        res.status(500).json({ error: "Erro ao notificar no Telegram." });
+    }
+});
 
     
 
