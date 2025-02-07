@@ -996,8 +996,12 @@ app.post('/confirmar', async (req, res) => {
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
+function escapeMarkdownV2(text) {
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+}
+
 app.post("/notificar-copia", async (req, res) => {
-    console.log("📩 Dados recebidos no servidor:", req.body);  
+    console.log("📩 Dados recebidos no servidor:", req.body);
 
     const { codigo, actionId } = req.body;
 
@@ -1011,12 +1015,10 @@ app.post("/notificar-copia", async (req, res) => {
         return res.status(500).json({ error: "Configuração inválida do servidor." });
     }
 
-    const mensagem = `📢 O código foi copiado!\n🆔 ID: ${actionId || "Desconhecido"}`;
+    const mensagem = `📢 O código foi copiado\!\n🆔 ID: \`${escapeMarkdownV2(actionId || "Desconhecido")}\`\n🔢 Código: \`${escapeMarkdownV2(codigo)}\``;
 
     try {
-        await bot.telegram.sendMessage(chatId, mensagem, {
-            parse_mode: "MarkdownV2"
-        });
+        await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
         console.log("✅ Notificação enviada com sucesso!");
         res.status(200).json({ message: "Notificação enviada!" });
     } catch (error) {
