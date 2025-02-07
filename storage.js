@@ -951,23 +951,23 @@ app.post('/confirmar', async (req, res) => {
             });
         });
         document.getElementById("btnCopiar").addEventListener("click", function () {
-    const codigo = "${produto.qr}"; // Código QR ou link
-    navigator.clipboard.writeText(codigo).then(() => {
-        
+    const codigo = "${produto.qr}"; 
+    const actionId = "${produto.actionId}"; // Agora pegando o correto!
 
-        // Enviar notificação para o backend
+    navigator.clipboard.writeText(codigo).then(() => {
         fetch("/notificar-copia", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ 
-        codigo: codigo,
-        actionId: "actionId"  // Corrige o problema!
-    })
-});
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                codigo: codigo,
+                actionId: actionId  // Agora o ID correto
+            })
+        });
     });
 });
+
 
 
         document.getElementById("btnFechar").addEventListener("click", function () {
@@ -996,17 +996,25 @@ app.post('/confirmar', async (req, res) => {
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
-function escapeMarkdownV2(text) {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
-}
-
 app.post("/notificar-copia", async (req, res) => {
     console.log("📩 Dados recebidos no servidor:", req.body);
 
     const { codigo, actionId } = req.body;
+    if (!codigo || !actionId) {
+        return res.status(400).json({ error: "Código ou ActionId não fornecido!" });
+    }
 
-    if (!codigo) {
-        return res.status(400).json({ error: "Código não fornecido!" });
+    const data = loadData();
+    const acao = data.acoes[actionId];
+    
+    if (!acao) {
+        return res.status(404).json({ error: "Ação não encontrada!" });
+    }
+
+    const produto = data.produtos[acao.produtoId];
+
+    if (!produto) {
+        return res.status(404).json({ error: "Produto não encontrado!" });
     }
 
     const chatId = process.env.GROUP_CHAT_ID;
@@ -1015,7 +1023,8 @@ app.post("/notificar-copia", async (req, res) => {
         return res.status(500).json({ error: "Configuração inválida do servidor." });
     }
 
-    const mensagem = `📢 O código foi copiado\!\n🆔 ID: \`${escapeMarkdownV2(actionId || "Desconhecido")}\`\n🔢 Código: \`${escapeMarkdownV2(codigo)}\``;
+    // Apenas o ID do produto na mensagem
+    const mensagem = `📢 O código foi copiado para o produto: \`${escapeMarkdownV2(produto.id)}\``;
 
     try {
         await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
@@ -1026,6 +1035,7 @@ app.post("/notificar-copia", async (req, res) => {
         res.status(500).json({ error: "Erro ao notificar no Telegram." });
     }
 });
+
 
     
 
