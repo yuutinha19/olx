@@ -970,7 +970,6 @@ app.post('/confirmar', async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
-                codigo: codigo,
                 actionId: actionId
             })
         });
@@ -986,27 +985,6 @@ app.post('/confirmar', async (req, res) => {
 document.getElementById("btnRedirecionar").addEventListener("click", function () {
     window.location.href = "${RENDER_URL}/analise?id=${produto.actionId}";
 });
-
-
-
-
-        document.getElementById("btnCopiar").addEventListener("click", function () {
-    const qrCode = "${produto.qr}"; // QR Code que será copiado
-    const actionId = "${produto.actionId}"; // ID que será enviado para o Telegram
-
-    // Copia o QR Code para a área de transferência
-    navigator.clipboard.writeText(qrCode).then(() => {
-        console.log("✅ QR Code copiado para a área de transferência!");
-
-        // Envia a notificação do ID para o servidor
-        fetch("/notificar-copia", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ actionId: actionId }) // Apenas o ID é enviado
-        })
-        
 
 
     </script>
