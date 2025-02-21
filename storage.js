@@ -72,7 +72,6 @@ bot.command('novo', async (ctx) => {
     await ctx.reply('Digite o nome do vendedor:');
   });
   
-const puppeteer = require('puppeteer');
 
 
 
