@@ -33,6 +33,68 @@ function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
+async function extrairDados(url) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.goto(url, {
+      waitUntil: 'networkidle0',
+      timeout: 60000,
+    });
+    // Aguarda que o seletor da descrição esteja disponível
+    await page.waitForSelector('p.l-product-details__description-text', { timeout: 10000 });
+    // Aguarda que o seletor do nome do produto esteja disponível
+    await page.waitForSelector('h1.o-text.-xs-semibold.-xs-extra-dark.-xs-lowercase.l-about__title', { timeout: 10000 });
+
+    // Extraindo o nome do produto
+    const productName = await page.evaluate(() => {
+      const nameElement = document.querySelector('h1.o-text.-xs-semibold.-xs-extra-dark.-xs-lowercase.l-about__title');
+      return nameElement ? nameElement.innerText.trim() : 'Nome do produto não encontrado';
+    });
+
+    // Extraindo o nome do vendedor
+    const sellerName = await page.evaluate(() => {
+      const sellerElement = document.querySelector('span.l-store-info__seller-title');
+      return sellerElement ? sellerElement.innerText.trim() : 'Nome do vendedor não encontrado';
+    });
+
+    const productImages = await page.evaluate(() => {
+      const imageElements = document.querySelectorAll('img.c-photo-gallery__image');
+      return Array.from(imageElements).slice(0, 2).map(img => img.getAttribute('src'));
+    });
+
+    const productDescription = await page.evaluate(() => {
+      const descriptionElement = document.querySelector('p.l-product-details__description-text');
+      return descriptionElement ? descriptionElement.innerText.trim() : 'Descrição do produto não encontrada';
+    });
+
+    const location = await page.evaluate(() => {
+      const locationElement = document.querySelector('span.l-store-info__seller-subtitle');
+      return locationElement ? locationElement.innerText.trim() : 'Localização não encontrada';
+    });
+
+    const productPrice = await page.evaluate(() => {
+      const priceElement = document.querySelector('span[data-test="div-preco-produto"]');
+      return priceElement ? priceElement.innerText.trim() : 'Preço não encontrado';
+    });
+
+    await browser.close();
+
+    return {
+      productName,         // Novo campo com o nome do produto
+      nome: sellerName,    // Nome do vendedor
+      imagens: productImages,
+      descricao: productDescription,
+      localizacao: location,
+      preco: productPrice,
+    };
+  } catch (error) {
+    await browser.close();
+    throw error;
+  }
+}
+
+
 
 let produtos = {}; 
 let acoes = {};
@@ -41,34 +103,73 @@ let acoes = {};
 bot.command('novo', async (ctx) => {
   const userId = ctx.from.id;
   const data = loadData();
-
-
-  Object.keys(data.produtos).forEach(produtoId => {
-    if (data.produtos[produtoId].userId === userId && data.produtos[produtoId].etapa !== 'finalizado') {
-      delete data.produtos[produtoId];
-    }
-  });
-
   const produtoId = Math.random().toString(36).slice(2, 11);
   data.produtos[produtoId] = {
     id: produtoId,
     userId,
-    etapa: 'vendedor',
-    qr: '',
-    vendedor: '',
-    nome: '',
-    descricao: '',
-    valor: '',
-    imagem1: '',
-    imagem2: '',
+    etapa: 'url',
+    url: '',
     dataVenda: '',
-    regiao: '',
+    codigo: '',
+    timestamp: Date.now()
   };
-
   saveData(data);
-  produtos[userId] = data.produtos[produtoId]; 
-  await ctx.reply('Digite o nome do vendedor:');
+  await ctx.reply('Envie a URL do produto:');
 });
+
+// Handler para capturar as respostas do usuário conforme a etapa do cadastro
+bot.on('text', async (ctx) => {
+  const userId = ctx.from.id;
+  const text = ctx.message.text;
+  const data = loadData();
+
+  // Procura entre os produtos o cadastro que esteja em andamento para o usuário
+  const produto = Object.values(data.produtos).find(p => p.userId === userId && p.etapa !== 'finalizado');
+
+  if (produto) {
+    switch (produto.etapa) {
+      case 'url':
+        produto.url = text;
+        produto.etapa = 'dataVenda';
+        saveData(data);
+        await ctx.reply('Digite a data da venda (ex: 28/01/2025):');
+        break;
+      case 'dataVenda':
+        produto.dataVenda = text;
+        produto.etapa = 'codigo';
+        saveData(data);
+        await ctx.reply('Digite o código do produto:');
+        break;
+      case 'codigo':
+        produto.codigo = text;
+        produto.etapa = 'finalizado';
+        saveData(data);
+
+        try {
+          // Chama a função extrairDados() com a URL informada
+          const productData = await extrairDados(produto.url);
+          await ctx.reply(`✅ Produto cadastrado!
+📦 Produto: ${productData.productName}
+👤 Vendedor: ${productData.nome}
+💰 Preço: ${productData.preco}
+📍 Localização: ${productData.localizacao}
+🖼️ Imagem1: ${productData.imagens[0] || 'Não encontrada'}
+🖼️ Imagem2: ${productData.imagens[1] || 'Não encontrada'}
+📅 Data da Venda: ${produto.dataVenda}
+🔢 Código: ${produto.codigo}`);
+        } catch (error) {
+          console.error('Erro ao extrair dados:', error);
+          await ctx.reply('❌ Erro ao buscar os dados do produto. Verifique a URL e tente novamente.');
+        }
+        break;
+      default:
+        await ctx.reply('Comando não reconhecido. Use /novo para iniciar um novo cadastro.');
+    }
+  } else {
+    await ctx.reply('Nenhum cadastro em andamento encontrado. Use o comando /novo para iniciar.');
+  }
+});
+
 
 const puppeteer = require('puppeteer');
 

