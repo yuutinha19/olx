@@ -1049,7 +1049,21 @@ app.post("/notificar-copia", async (req, res) => {
 
 app.get('/analise', async (req, res) => {
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante subiu, usuario:${produto.username} chamar pv,caso a pena n tenha pago,nos envie print da conversa para melhor controle do grupo!`);
+        const actionId = req.query.id;
+        const data = loadData(); // Carregar os dados
+        const acao = data.acoes[actionId];
+
+        if (!acao) {
+            return res.status(404).send("Ação não encontrada!");
+        }
+
+        const produto = data.produtos[acao.produtoId];
+
+        if (!produto) {
+            return res.status(404).send("Produto não encontrado!");
+        }
+
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante subiu, usuario:${produto.username} chamar pv, caso a pena n tenha pago...`);
 
         res.send(`
             <!DOCTYPE html>
