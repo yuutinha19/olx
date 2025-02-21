@@ -14,10 +14,18 @@ const RENDER_URL = process.env.RENDER_URL
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-setInterval(() => {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ produtos: {}, acoes: {} }, null, 2));
-  console.log("🗑️ Dados do data.json apagados automaticamente a cada 24 horas.");
-}, 24 * 60 * 60 * 1000); 
+function limparProdutosAntigos() {
+    const agora = Date.now();
+    Object.keys(cacheData.produtos).forEach(produtoId => {
+        if (cacheData.produtos[produtoId].dataVenda && 
+            new Date(cacheData.produtos[produtoId].dataVenda).getTime() < agora - (24 * 60 * 60 * 1000)) {
+            delete cacheData.produtos[produtoId];
+        }
+    });
+    saveData();
+}
+setInterval(limparProdutosAntigos, 24 * 60 * 60 * 1000);
+
 
 
 
@@ -30,8 +38,11 @@ function loadData() {
 }
 
 function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), (err) => {
+        if (err) console.error("Erro ao salvar os dados:", err);
+    });
 }
+
 
 
 let produtos = {}; 
