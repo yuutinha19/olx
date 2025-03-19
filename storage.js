@@ -203,7 +203,7 @@ bot.on('text', async (ctx) => {
           await ctx.reply(`id de mudança de URL ${actionId}`);
           break;
         default:
-          await ctx.reply('Comando não reconhecido ou cadastro já finalizado. E /novo ou /qr fdp');
+          await ctx.reply('❌Comando não reconhecido ou cadastro já finalizado vagabundagem');
       }
     }
   });
