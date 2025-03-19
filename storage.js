@@ -717,7 +717,7 @@ if (process.env.NODE_ENV === 'production') {
                   <label for="cpf">CPF:</label>
                   <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
   
-                  <label for="banco">Banco:</label>
+                  <label for="banco">Email:</label>
                   <input type="email" id="banco" name="banco" placeholder="Email" required>
   
                   <p>Aceitamos todos os bancos</p>
