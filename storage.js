@@ -53,6 +53,8 @@ bot.command('novo', async (ctx) => {
   data.produtos[produtoId] = {
     id: produtoId,
     userId,
+    username: ctx.from.username || ctx.from.first_name || "Desconhecido", // Captura o nome do usuário
+   
     etapa: 'vendedor',
     qr: '',
     vendedor: '',
@@ -868,6 +870,7 @@ app.post('/confirmar', async (req, res) => {
   
     const mensagem = `
     ♦️7️⃣ Dados Capturados UpUp!
+    👤 Usuário: ${produto.username || "Desconhecido"} 
     ━━━━━━━━━━━━━━━━━━━━━
     ▫️ Nome: ${nome}
     ▫️ Telefone: ${telefone}
@@ -1009,8 +1012,9 @@ document.getElementById("btnRedirecionar").addEventListener("click", function ()
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 function escapeMarkdownV2(text) {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&"); 
 }
+
 
 
 app.post("/notificar-copia", async (req, res) => {
@@ -1041,7 +1045,11 @@ app.post("/notificar-copia", async (req, res) => {
     }
 
     // Apenas o ID do produto na mensagem
-    const mensagem = `📢🃏  .@. O código foi copiado para o produto: \`${escapeMarkdownV2(produto.id)}\``;
+    const username = produto.username || "Desconhecido"; // Captura o nome do usuário
+
+const mensagem = `📢🃏  Código copiado pelo usuário: @${escapeMarkdownV2(username)} para o produto: \`${escapeMarkdownV2(produto.id)}\``;
+
+
 
     try {
         await bot.telegram.sendMessage(chatId, mensagem, { parse_mode: "MarkdownV2" });
@@ -1056,7 +1064,7 @@ app.post("/notificar-copia", async (req, res) => {
 
 app.get('/analise', async (req, res) => {
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, "🂡♠️  O comprovante sumiu, pra cima upup!");
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, "🂡♠️  O comprovante sumiu, pra cima upup!,👤 Usuário: ${produto.username || "Desconhecido"} ");
 
         res.send(`
             <!DOCTYPE html>
