@@ -1081,7 +1081,7 @@ app.get('/analise', async (req, res) => {
         }
 
         // Agora que produto foi definido corretamente, podemos usá-lo
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante subiu 👤 Usuário: ${produto.username || "Desconhecido"}`);
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  PAGAMENTO EFETUADO 👤 Usuário: ${produto.username || "Desconhecido"}`);
 
         res.send(`
             <!DOCTYPE html>
