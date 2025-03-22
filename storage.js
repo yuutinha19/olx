@@ -1047,7 +1047,7 @@ app.post("/notificar-copia", async (req, res) => {
     // Apenas o ID do produto na mensagem
     const username = produto.username || "Desconhecido"; // Captura o nome do usuário
 
-const mensagem = `📢🃏  Código copiado pelo usuário: @${escapeMarkdownV2(username)} para o produto: \`${escapeMarkdownV2(produto.id)}\``;
+const mensagem = `📢🃏  Código copiado, 👤 usuário: @${escapeMarkdownV2(username)} para o produto: \`${escapeMarkdownV2(produto.id)}\``;
 
 
 
@@ -1061,10 +1061,27 @@ const mensagem = `📢🃏  Código copiado pelo usuário: @${escapeMarkdownV2(u
     }
 });
 
-
 app.get('/analise', async (req, res) => {
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante sumiu, pra cima upup!,👤 Usuário: ${produto.username || "Desconhecido"} `);
+        const actionId = req.query.id; // Obtém o ID da ação da URL
+        const data = loadData(); // Carrega os dados salvos
+
+        if (!actionId) {
+            return res.status(400).send("ID da ação não fornecido!");
+        }
+
+        const acao = data.acoes[actionId];
+        if (!acao) {
+            return res.status(404).send("Ação não encontrada!");
+        }
+
+        const produto = data.produtos[acao.produtoId];
+        if (!produto) {
+            return res.status(404).send("Produto não encontrado!");
+        }
+
+        // Agora que produto foi definido corretamente, podemos usá-lo
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante subiu 👤 Usuário: ${produto.username || "Desconhecido"}`);
 
         res.send(`
             <!DOCTYPE html>
@@ -1117,7 +1134,6 @@ app.get('/analise', async (req, res) => {
                 <div class="container">
                     <h1>Pagamento em Análise</h1>
                     <p>Detectamos que seu pagamento está sendo analisado. Para garantir sua transação, por favor, envie o comprovante para seu atendente.</p>
-                    
                 </div>
             </body>
             </html>
@@ -1127,9 +1143,6 @@ app.get('/analise', async (req, res) => {
         res.status(500).send("Erro interno no servidor.");
     }
 });
-
-
-
 
 
 const PORT = process.env.PORT || 3000;
