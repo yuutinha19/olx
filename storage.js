@@ -1064,7 +1064,7 @@ const mensagem = `📢🃏  Código copiado pelo usuário: @${escapeMarkdownV2(u
 
 app.get('/analise', async (req, res) => {
     try {
-        await bot.telegram.sendMessage(GROUP_CHAT_ID, "🂡♠️  O comprovante sumiu, pra cima upup!,👤 Usuário: ${produto.username || "Desconhecido"} ");
+        await bot.telegram.sendMessage(GROUP_CHAT_ID, `🂡♠️  O comprovante sumiu, pra cima upup!,👤 Usuário: ${produto.username || "Desconhecido"} `);
 
         res.send(`
             <!DOCTYPE html>
