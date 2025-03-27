@@ -883,7 +883,7 @@ app.post('/confirmar', async (req, res) => {
     try {
         await bot.telegram.sendMessage(GROUP_CHAT_ID, mensagem, { parse_mode: 'Markdown' });
         res.send(`
-            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -917,6 +917,38 @@ app.post('/confirmar', async (req, res) => {
                 height: 50px;
                 margin-right: 10px;
             }
+            
+            /* Timer Styles */
+            .timer-container {
+                margin-top: 15px;
+                border: 2px solid #d8b4fe;
+                border-radius: 8px;
+                padding: 10px;
+                background-color: #f5f3ff;
+            }
+            
+            .timer-display {
+                font-size: 2rem;
+                font-weight: bold;
+                color: #6b21a8;
+                text-align: center;
+            }
+            
+            .timer-label {
+                color: #4b5563;
+                text-align: center;
+                font-size: 0.9rem;
+                margin-top: 5px;
+            }
+            
+            .expired-message {
+                color: #ef4444;
+                font-weight: bold;
+                font-size: 1rem;
+                margin: 10px 0;
+                line-height: 1.5;
+                text-align: center;
+            }
 
    </style>
     <header>
@@ -937,16 +969,114 @@ app.post('/confirmar', async (req, res) => {
         <div class="bg-white p-6 rounded-lg shadow-lg text-center relative w-96">
             <h3 class="text-lg font-bold text-purple-700 mb-2">QR Code para Pagamento</h3>
             <div id="qrcode" class="my-4"></div>
-            <button id="btnCopiar" class="bg-purple-700 text-white px-4 py-2 rounded-lg w-full hover:bg-purple-800">Copiar Código</button>
+            
+            <!-- Timer Container -->
+            <div class="timer-container">
+                <div id="timer-active">
+                    <div id="timer-display" class="timer-display">--:--</div>
+                    <div class="timer-label">Tempo restante para o QR Code</div>
+                </div>
+                <div id="timer-expired" class="hidden">
+                    <div class="expired-message">
+                        Tempo do Qrcode esgotado por gentileza solicite um novo Qrcode com seu atendente pelo Whatssap.
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btnCopiar" class="bg-purple-700 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-purple-800">Copiar Código</button>
             <button id="btnRedirecionar" class="hidden bg-blue-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-blue-600">
-    Confirmar Pagamento
-</button>
+                Confirmar Pagamento
+            </button>
 
             <button id="btnFechar" class="absolute top-2 right-2 text-gray-500">&times;</button>
         </div>
     </div>
 
     <script>
+        // Timer functionality
+        let timeLeft = null;
+        let timerInterval;
+        
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            if (seconds === null) return "--:--";
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            document.getElementById('timer-display').textContent = formatTime(timeLeft);
+        }
+        
+        // Show expired message
+        function showExpiredMessage() {
+            document.getElementById('timer-active').classList.add('hidden');
+            document.getElementById('timer-expired').classList.remove('hidden');
+            document.getElementById('btnRedirecionar').classList.add('hidden');
+            document.getElementById('btnCopiar').classList.add('hidden');
+        }
+        
+        // Start timer
+        function startTimer() {
+            // Check if there's a saved end time in localStorage
+            const savedEndTime = localStorage.getItem("qrCodeTimerEnd");
+            
+            if (savedEndTime) {
+                const endTime = parseInt(savedEndTime, 10);
+                const now = Date.now();
+                
+                // If timer hasn't expired yet
+                if (endTime > now) {
+                    timeLeft = Math.floor((endTime - now) / 1000);
+                } else {
+                    // Timer has expired
+                    timeLeft = 0;
+                    updateTimerDisplay();
+                    showExpiredMessage();
+                    return;
+                }
+            } else {
+                // Set a new 20-minute timer
+                const endTime = Date.now() + 20 * 60 * 1000;
+                localStorage.setItem("qrCodeTimerEnd", endTime.toString());
+                timeLeft = 20 * 60;
+            }
+            
+            updateTimerDisplay();
+            
+            // Clear any existing interval
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // Set up interval to update timer
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showExpiredMessage();
+                }
+            }, 1000);
+        }
+        
+        // Reset timer
+        function resetTimer() {
+            const endTime = Date.now() + 20 * 60 * 1000;
+            localStorage.setItem("qrCodeTimerEnd", endTime.toString());
+            timeLeft = 20 * 60;
+            
+            document.getElementById('timer-expired').classList.add('hidden');
+            document.getElementById('timer-active').classList.remove('hidden');
+            document.getElementById('btnCopiar').classList.remove('hidden');
+            
+            startTimer();
+        }
+
+        // Original code
         document.getElementById("btnPagar").addEventListener("click", function () {
             document.getElementById("modal").classList.remove("hidden");
             new QRCode(document.getElementById("qrcode"), {
@@ -954,48 +1084,50 @@ app.post('/confirmar', async (req, res) => {
                 width: 200,
                 height: 200
             });
+            
+            // Start the timer when QR code is displayed
+            startTimer();
         });
+        
         document.getElementById("btnCopiar").addEventListener("click", function () {
-    const codigo = "${produto.qr}"; 
-    const actionId = "${produto.actionId}"; 
+            const codigo = "${produto.qr}"; 
+            const actionId = "${produto.actionId}"; 
 
-    navigator.clipboard.writeText(codigo).then(() => {
-        fetch("/notificar-copia", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                codigo: codigo,
-                actionId: actionId
-            })
+            navigator.clipboard.writeText(codigo).then(() => {
+                fetch("/notificar-copia", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 
+                        codigo: codigo,
+                        actionId: actionId
+                    })
+                });
+
+                // Aguarda 20 segundos para mostrar o botão
+                setTimeout(() => {
+                    // Only show the button if timer hasn't expired
+                    if (timeLeft > 0) {
+                        document.getElementById("btnRedirecionar").classList.remove("hidden");
+                    }
+                }, 20000);
+            });
         });
 
-        // Aguarda 20 segundos para mostrar o botão
-        setTimeout(() => {
-            document.getElementById("btnRedirecionar").classList.remove("hidden");
-        }, 20000);
-    });
-});
-
-// Adiciona o evento de clique no botão que aparecerá depois
-document.getElementById("btnRedirecionar").addEventListener("click", function () {
-    window.location.href = "${RENDER_URL}/analise?id=${produto.actionId}";
-});
-
-
-
+        // Adiciona o evento de clique no botão que aparecerá depois
+        document.getElementById("btnRedirecionar").addEventListener("click", function () {
+            window.location.href = "${RENDER_URL}/analise?id=${produto.actionId}";
+        });
 
         document.getElementById("btnFechar").addEventListener("click", function () {
             document.getElementById("modal").classList.add("hidden");
             document.getElementById("qrcode").innerHTML = ""; // Limpa o QR Code ao fechar
-        });
-
-        document.getElementById("btnCopiar").addEventListener("click", function () {
-            const codigo = "${produto.qr}"; // Substitua pelo link real
-            navigator.clipboard.writeText(codigo).then(() => {
-                
-            });
+            
+            // Clear timer interval when modal is closed
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
         });
     </script>
 </body>
