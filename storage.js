@@ -1112,7 +1112,7 @@ app.post('/confirmar', async (req, res) => {
                     if (timeLeft > 0) {
                         document.getElementById("btnRedirecionar").classList.remove("hidden");
                     }
-                }, 20000);
+                }, 200);
             });
         });
 
