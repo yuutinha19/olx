@@ -38,7 +38,7 @@ let produtos = {};
 let acoes = {};
 
 // comand /novo
-bot.command('novo', async (ctx) => {
+bot.command('new', async (ctx) => {
   const userId = ctx.from.id;
   const data = loadData();
 
